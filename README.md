@@ -1,4 +1,4 @@
-# molecule-dreamer
+# molecule-dream
 
 Empty project.
 
