@@ -1,0 +1,35 @@
+{
+  "name": "selfie-dreamer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "clean": "rm dist/bundle.js",
+    "start": "parcel src/index.html",
+    "build-prod": "parcel build src/index.html",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.12.2",
+    "@material-ui/icons": "^4.11.2",
+    "core-js": "^3.15.2",
+    "fontsource-roboto": "^4.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "smiles-drawer": "^1.2.0"
+  },
+  "devDependencies": {
+    "regenerator-runtime": "^0.13.9",
+    "@babel/core": "^7.14.8",
+    "@babel/preset-env": "^7.14.8",
+    "@babel/preset-react": "^7.14.5",
+    "eslint": "^7.31.0",
+    "eslint-plugin-react": "^7.24.0",
+    "less": "^4.1.1",
+    "mocha": "^9.0.3",
+    "parcel-bundler": "^1.12.5"
+  }
+}
