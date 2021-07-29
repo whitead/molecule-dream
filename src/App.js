@@ -3,8 +3,9 @@ import { Divider, CssBaseline, ThemeProvider, Container, Grid, Button, CardActio
 import InputAdornment from '@material-ui/core/InputAdornment';
 import React, { useState, useEffect } from 'react';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
-import SmilesDrawer from 'smiles-drawer'
-import MolCard from './components/MolCard'
+import SmilesDrawer from 'smiles-drawer';
+import MolCard from './components/MolCard';
+import rnn from './lib/rnn';
 //import selfies_mod from './selfies';
 
 const darkTheme = createTheme({
@@ -56,11 +57,14 @@ export default function App(props) {
     );
   });
 
-
   const finalizeCard = () => {
       setTitles([...titles.slice(0, index), smiles, ...titles.slice(index + 1)])
       setIndex((index + 1) % props.cardCount);
       setsmiles('');
+  }
+
+  const translateKey = (k) => {
+
   }
 
   useEffect(() => {
