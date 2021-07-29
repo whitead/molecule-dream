@@ -9,24 +9,22 @@ const useStyles = makeStyles((theme) => ({
     card: {
 
     },
+    finalCard: {
+        background: 'linear-gradient(45deg, #da90a0 30%, #dc9974 90%)'
+    },
     title: {
         fontSize: 14,
     },
 }));
 
 export default function MolCard(props) {
-    const [title, setTitle] = useState('');
     const classes = useStyles();
 
-    function test(x) {
-        setTitle(x);
-    }
-
     return (
-        <Card className={classes.card} variant="outlined">
+        <Card className={props.fixedTitle ? classes.finalCard : classes.card} variant={props.fixedTitle ? "elevation" : "outlined"}>
             <CardContent>
                 <Typography className={classes.title} color="textSecondary" gutterBottom>
-                    {title}
+                    {props.fixedTitle ? props.fixedTitle : props.title}
                 </Typography>
                 <canvas id={props.canvas_id} width='250' height='200'></canvas>
             </CardContent>

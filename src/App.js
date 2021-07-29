@@ -1,10 +1,11 @@
 
-import { Card, CssBaseline, ThemeProvider, Container, Grid, CardContent, CardActions, Paper, TextField, Typography, Button } from '@material-ui/core'
+import { Divider, CssBaseline, ThemeProvider, Container, Grid, Button, CardActions, Paper, TextField, Typography } from '@material-ui/core'
+import InputAdornment from '@material-ui/core/InputAdornment';
 import React, { useState, useEffect } from 'react';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
 import SmilesDrawer from 'smiles-drawer'
 import MolCard from './components/MolCard'
-import selfies_mod from './selfies';
+//import selfies_mod from './selfies';
 
 const darkTheme = createTheme({
   palette: {
@@ -25,7 +26,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function updateSmiles(s, canvas_id, drawer) {
-  SmilesDrawer.parse(selfies_mod.selfies2smiles(s), (tree) => {
+  //SmilesDrawer.parse(selfies_mod.selfies2smiles(s), (tree) => {
+    SmilesDrawer.parse(s, (tree) => {
     drawer.draw(tree, canvas_id);
   }, (err) => {
 
@@ -34,10 +36,17 @@ function updateSmiles(s, canvas_id, drawer) {
 
 export default function App(props) {
   const classes = useStyles();
+
+
+  const [titles, setTitles] = useState(Array.from({ length: props.cardCount }, (e, i) => ''))
+  const [smiles, setsmiles] = useState('CC');
+  const [index, setIndex] = useState(0);
+
   let options = { theme: 'dark', width: '250', height: '200' };
   let smilesDrawer = new SmilesDrawer.Drawer(options);
-  let cardArray = Array.from({ length: props.cardCount }, (e, i) => {
-    return (<MolCard canvas_id={`test_${i}`} ></MolCard >);
+
+  let cardArray = titles.map((e, i) => {
+    return (<MolCard fixedTitle={e} title={i === index ? smiles : ''} canvas_id={`test_${i}`} ></MolCard >);
   });
   let gCardArray = cardArray.map((c, i) => {
     return (
@@ -47,32 +56,35 @@ export default function App(props) {
     );
   });
 
-  const [selfie, setSelfie] = useState('CC');
-  const [index, setIndex] = useState(0);
 
-  const textEvent = (e) => {
-    if (e.key === 'Enter') {
+  const finalizeCard = () => {
+      setTitles([...titles.slice(0, index), smiles, ...titles.slice(index + 1)])
       setIndex((index + 1) % props.cardCount);
-      setSelfie('');
-    }
+      setsmiles('');
   }
 
   useEffect(() => {
-    updateSmiles(selfie, cardArray[index].props.canvas_id, smilesDrawer);
-    //cardArray[index].test(selfie);
+    updateSmiles(smiles, cardArray[index].props.canvas_id, smilesDrawer);
   });
 
-  // Similar to componentDidMount and componentDidUpdate:  useEffect(() => {    // Update the document title using the browser API    document.title = `You clicked ${count} times`;  });
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <Container maxWidth="sm">
         <Typography align="center" variant="h2" component="h2" gutterBottom>
-          Selfies Dreamer
+          Important Message
         </Typography>
-        <TextField variant='standard' fullWidth value={selfie} onChange={(e) => setSelfie(e.target.value)} onKeyDown={textEvent} />
+        <TextField variant='outlined' fullWidth value={smiles} onChange={(e) => setsmiles(e.target.value)} onKeyDown={(e) => {if (e.key === 'Enter') finalizeCard()}}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                          <Button color="secondary" onClick={finalizeCard}> ✍️</Button>
+                    </InputAdornment>
+                  ),
+                }}/>
       </Container>
       <div className={classes.root}>
+        <br/>
         <Grid container spacing={3}>
           {gCardArray}
         </Grid>

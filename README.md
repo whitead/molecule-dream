@@ -1,4 +1,4 @@
-# selfie-dreamer
+# molecule-dreamer
 
 Empty project.
 
