@@ -12,10 +12,8 @@ promise.then((pyodide) => {
     `).then(() => {
             const decoder = pyodide.globals.get('decoder');
             selfies_mod.selfies2smiles = (selfies) => {
-                console.log('Converting', selfies);
                 //let result = pyodide.runPython(`decoder(r'${selfies}')`);
                 let result = decoder(selfies);
-                console.log('result', result);
                 return result;
             };
         });

@@ -73,9 +73,7 @@ export default function App(props) {
     setRnnState(t[1]);
     rnnMod.vec2selfie(rnnX).then((v) => {
       setSelfies(selfies + v.join(''));
-      console.log('current', selfies);
       const s = selfies_mod.selfies2smiles(selfies);
-      console.log('converting!', s);
       setSmiles(s);
     });
   }
