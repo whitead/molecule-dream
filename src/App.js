@@ -68,7 +68,7 @@ export default function App(props) {
   }
 
   const translateKey = (k) => {
-    let t = rnnMod.model(rnnX, rnnState);
+    let t = rnnMod.model([rnnX, rnnState]);
     setRnnX(rnnMod.sample(t[0]));
     setRnnState(t[1]);
     rnnMod.vec2selfie(rnnX).then((v) => {

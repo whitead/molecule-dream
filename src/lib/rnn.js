@@ -2,7 +2,9 @@ import * as tf from '@tensorflow/tfjs';
 import config from './model_info.json'
 
 const rnn_mod = {
-    model: (x, s) => {
+    model: (t) => {
+        const x = t[0];
+        const s = t[1];
         console.log('FAKE!!');
         return [tf.randomNormal([config.vocab_size]), s]
     }
@@ -12,11 +14,15 @@ const model_load = tf.loadLayersModel('https://raw.githubusercontent.com/whitead
 
 model_load.then((model) => {
     console.log('LOADED!!');
-    rnn_mod.model = model;
+    rnn_mod.model = (t) => {
+        model.predict(t);
+    }
+    rnn_mod.init = () => {
+        model.resetStates();
+    }
 });
 
-rnn_mod.init_s = () => {
-    return tf.zeros([1, config.rnn_size]);
+rnn_mod.init = () => {
 }
 
 rnn_mod.sample = (x, seed, k = 1) => {
