@@ -15,6 +15,9 @@ const useStyles = makeStyles((theme) => ({
     title: {
         fontSize: 14,
     },
+    code: {
+        fontFamily: 'monospace'
+    }
 }));
 
 export default function MolCard(props) {
@@ -27,6 +30,9 @@ export default function MolCard(props) {
                     {props.fixedTitle ? props.fixedTitle : props.title}
                 </Typography>
                 <canvas id={props.canvas_id} width='250' height='200'></canvas>
+                <Typography className={classes.code} variant="body2" component="p">
+                    {props.selfies}
+                </Typography>
             </CardContent>
         </Card>
     );

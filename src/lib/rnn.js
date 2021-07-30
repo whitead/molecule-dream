@@ -3,10 +3,8 @@ import config from './model_info.json'
 
 const rnn_mod = {
     model: (t) => {
-        const x = t[0];
-        const s = t[1];
         console.log('FAKE!!');
-        return [tf.randomNormal([config.vocab_size]), s]
+        return tf.randomNormal([config.vocab_size]);
     }
 };
 
@@ -15,21 +13,21 @@ const model_load = tf.loadLayersModel('https://raw.githubusercontent.com/whitead
 model_load.then((model) => {
     console.log('LOADED!!');
     rnn_mod.model = (t) => {
-        model.predict(t);
+        return model.predict(t);
     }
-    rnn_mod.init = () => {
+    rnn_mod.resetStates = () => {
         model.resetStates();
     }
 });
 
-rnn_mod.init = () => {
+rnn_mod.resetStates = () => {
 }
 
 rnn_mod.sample = (x, seed, k = 1) => {
-    // return tf.multinomial(
-    //     x, k, seed
-    // );
-    return tf.argMax(x, -1);
+    return tf.multinomial(
+        tf.mul(x, tf.scalar(10.)), k, seed
+    );
+    // return tf.argMax(x, -1);
 }
 
 rnn_mod.selfie2vec = (s) => {

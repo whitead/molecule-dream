@@ -43,13 +43,13 @@ export default function App(props) {
 
 
   const [titles, setTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
-  const [smiles, setSmiles] = useState('[C][C]');
-  const [rnnState, setRnnState] = useState(rnn.init_s());
+  const [selfiesTitles, setSelfiesTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
+  const [smiles, setSmiles] = useState('');
   const [rnnX, setRnnX] = useState(rnn.selfie2vec('[nop]'));
   const [selfies, setSelfies] = useState('[nop]');
 
   let cardArray = titles.map((e, i) => {
-    return (<MolCard fixedTitle={e} title={i === titles.length - 1 ? smiles : ''} canvas_id={`test_${i}`} ></MolCard >);
+    return (<MolCard fixedTitle={e} selfies={selfiesTitles[i]} title={i === titles.length - 1 ? smiles : ''} canvas_id={`test_${i}`} ></MolCard >);
   });
   let gCardArray = cardArray.map((c, i) => {
     return (
@@ -61,16 +61,16 @@ export default function App(props) {
 
   const finalizeCard = () => {
     setTitles([...titles.slice(0, -1), smiles, ''])
+    setSelfiesTitles([...selfiesTitles.slice(0, -1), selfies, ''])
     setSmiles('');
     setSelfies('[nop]');
-    setRnnState(rnn.init_s());
+    rnn.resetStates();
     setRnnX(rnn.selfie2vec('[nop]'))
   }
 
   const translateKey = (k) => {
-    let t = rnnMod.model([rnnX, rnnState]);
-    setRnnX(rnnMod.sample(t[0]));
-    setRnnState(t[1]);
+    let t = rnnMod.model(rnnX);
+    setRnnX(rnnMod.sample(t));
     rnnMod.vec2selfie(rnnX).then((v) => {
       setSelfies(selfies + v.join(''));
       const s = selfies_mod.selfies2smiles(selfies);
@@ -87,7 +87,10 @@ export default function App(props) {
       <CssBaseline />
       <Container maxWidth="sm">
         <Typography align="center" variant="h2" component="h2" gutterBottom>
-          Important Message
+          Molecule Hacker
+        </Typography>
+        <Typography align="left" variant="body1" component="p" gutterBottom>
+          Smash 🔨 the keyboard ⌨️ as fast as you can to dream up new molecules
         </Typography>
         <TextField variant='outlined' fullWidth value={smiles}
           //onChange={(e) => setSmiles(e.target.value)}
