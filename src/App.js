@@ -87,7 +87,7 @@ export default function App(props) {
       <CssBaseline />
       <Container maxWidth="sm">
         <Typography align="center" variant="h2" component="h2" gutterBottom>
-          Molecule Hacker
+          Molecule Dream
         </Typography>
         <Typography align="left" variant="body1" component="p" gutterBottom>
           Smash 🔨 the keyboard ⌨️ as fast as you can to dream up new molecules
