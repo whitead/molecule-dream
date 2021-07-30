@@ -5,20 +5,26 @@ const rnn_mod = {
     model: (t) => {
         console.log('FAKE!!');
         return tf.randomNormal([config.vocab_size]);
+    },
+    startLoad: (fxn) => {
+        const loader = tf.loadLayersModel('https://raw.githubusercontent.com/whitead/molecule-dream/main/model/model.json');
+        loader.then((model) => {
+            rnn_mod.model = (t) => {
+                return model.predict(t);
+            }
+            rnn_mod.model_loaded = 'loaded';
+            fxn('loaded')
+            rnn_mod.resetStates = () => {
+                model.resetStates();
+            }
+        }, () => {
+            rnn_mod.model_loaded = 'failed';
+            fxn('failed')
+        });
     }
 };
 
-const model_load = tf.loadLayersModel('https://raw.githubusercontent.com/whitead/molecule-dream/main/model/model.json');
 
-model_load.then((model) => {
-    console.log('LOADED!!');
-    rnn_mod.model = (t) => {
-        return model.predict(t);
-    }
-    rnn_mod.resetStates = () => {
-        model.resetStates();
-    }
-});
 
 rnn_mod.resetStates = () => {
 }
