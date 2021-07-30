@@ -16,3 +16,5 @@ ehthumbs.db
 Thumbs.db
 
 dist/*
+
+py/.ipynb_checkpoints/

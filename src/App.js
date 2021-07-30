@@ -6,7 +6,8 @@ import { makeStyles, createTheme } from '@material-ui/core/styles';
 import SmilesDrawer from 'smiles-drawer';
 import MolCard from './components/MolCard';
 import rnn from './lib/rnn';
-//import selfies_mod from './selfies';
+import rnnMod from './lib/rnn';
+import selfies_mod from './lib/selfies';
 
 const darkTheme = createTheme({
   palette: {
@@ -27,27 +28,28 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function updateSmiles(s, canvas_id, drawer) {
-  //SmilesDrawer.parse(selfies_mod.selfies2smiles(s), (tree) => {
-    SmilesDrawer.parse(s, (tree) => {
+  SmilesDrawer.parse(s, (tree) => {
     drawer.draw(tree, canvas_id);
   }, (err) => {
 
   });
 }
 
+const options = { theme: 'dark', width: '250', height: '200' };
+const smilesDrawer = new SmilesDrawer.Drawer(options);
+
 export default function App(props) {
   const classes = useStyles();
 
 
-  const [titles, setTitles] = useState(Array.from({ length: props.cardCount }, (e, i) => ''))
-  const [smiles, setsmiles] = useState('CC');
-  const [index, setIndex] = useState(0);
-
-  let options = { theme: 'dark', width: '250', height: '200' };
-  let smilesDrawer = new SmilesDrawer.Drawer(options);
+  const [titles, setTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
+  const [smiles, setSmiles] = useState('[C][C]');
+  const [rnnState, setRnnState] = useState(rnn.init_s());
+  const [rnnX, setRnnX] = useState(rnn.selfie2vec('[nop]'));
+  const [selfies, setSelfies] = useState('[nop]');
 
   let cardArray = titles.map((e, i) => {
-    return (<MolCard fixedTitle={e} title={i === index ? smiles : ''} canvas_id={`test_${i}`} ></MolCard >);
+    return (<MolCard fixedTitle={e} title={i === titles.length - 1 ? smiles : ''} canvas_id={`test_${i}`} ></MolCard >);
   });
   let gCardArray = cardArray.map((c, i) => {
     return (
@@ -58,17 +60,28 @@ export default function App(props) {
   });
 
   const finalizeCard = () => {
-      setTitles([...titles.slice(0, index), smiles, ...titles.slice(index + 1)])
-      setIndex((index + 1) % props.cardCount);
-      setsmiles('');
+    setTitles([...titles.slice(0, -1), smiles, ''])
+    setSmiles('');
+    setSelfies('[nop]');
+    setRnnState(rnn.init_s());
+    setRnnX(rnn.selfie2vec('[nop]'))
   }
 
   const translateKey = (k) => {
-
+    let t = rnnMod.model(rnnX, rnnState);
+    setRnnX(rnnMod.sample(t[0]));
+    setRnnState(t[1]);
+    rnnMod.vec2selfie(rnnX).then((v) => {
+      setSelfies(selfies + v.join(''));
+      console.log('current', selfies);
+      const s = selfies_mod.selfies2smiles(selfies);
+      console.log('converting!', s);
+      setSmiles(s);
+    });
   }
 
   useEffect(() => {
-    updateSmiles(smiles, cardArray[index].props.canvas_id, smilesDrawer);
+    updateSmiles(smiles, cardArray[titles.length - 1].props.canvas_id, smilesDrawer);
   });
 
   return (
@@ -78,19 +91,26 @@ export default function App(props) {
         <Typography align="center" variant="h2" component="h2" gutterBottom>
           Important Message
         </Typography>
-        <TextField variant='outlined' fullWidth value={smiles} onChange={(e) => setsmiles(e.target.value)} onKeyDown={(e) => {if (e.key === 'Enter') finalizeCard()}}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                          <Button color="secondary" onClick={finalizeCard}> ✍️</Button>
-                    </InputAdornment>
-                  ),
-                }}/>
+        <TextField variant='outlined' fullWidth value={smiles}
+          //onChange={(e) => setSmiles(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter')
+              finalizeCard();
+            else
+              translateKey(e)
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <Button color="secondary" onClick={finalizeCard}>✍️</Button>
+              </InputAdornment>
+            ),
+          }} />
       </Container>
       <div className={classes.root}>
-        <br/>
+        <br />
         <Grid container spacing={3}>
-          {gCardArray}
+          {gCardArray.reverse()}
         </Grid>
       </div >
     </ThemeProvider>
