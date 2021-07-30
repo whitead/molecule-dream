@@ -1,5 +1,5 @@
 
-import { Divider, CssBaseline, ThemeProvider, Container, Grid, Button, CardActions, Paper, TextField, Typography } from '@material-ui/core'
+import { Card, CardContent, CssBaseline, ThemeProvider, Container, Grid, Button, TextField, Typography } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment';
 import React, { useState, useEffect } from 'react';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
@@ -49,7 +49,9 @@ export default function App(props) {
   const [selfies, setSelfies] = useState('[nop]');
 
   let cardArray = titles.map((e, i) => {
-    return (<MolCard fixedTitle={e} selfies={selfiesTitles[i]} title={i === titles.length - 1 ? smiles : ''} canvas_id={`test_${i}`} ></MolCard >);
+    return (<MolCard fixedTitle={e}
+      selfies={selfiesTitles[i]} title={i === titles.length - 1 ? smiles : ''}
+      canvas_id={`test_${i}`} ></MolCard >);
   });
   let gCardArray = cardArray.map((c, i) => {
     return (
@@ -112,6 +114,17 @@ export default function App(props) {
         <br />
         <Grid container spacing={3}>
           {gCardArray.reverse()}
+          <Grid className={classes.item} item xs={2}>
+            <Card variant="elevation">
+              <CardContent>
+                <Typography align="left" variant="body2" component="p" gutterBottom>
+                  Wait 5-30 seconds for things to load. Just hit buttons until it works. <br />This package is very inefficient - you may find your memory usage skyrocketing or even
+                  memory errors occurring in your tab if you run this. This is because garbage collection
+                  isn't being triggered correctly. Just close and re-open the tab when this happens.
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
       </div >
     </ThemeProvider>
