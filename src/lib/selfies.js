@@ -1,10 +1,14 @@
 // make fake function to start with
-const selfies_mod = { selfies2smiles: s => { return '[C]' }, pyoded_loaded: 'loading', selfies_loaded: 'loading' };
+const selfiesMod = { selfies2smiles: s => { return '[C]' }, pyodideLoaded: 'waiting', selfiesLoaded: 'waiting' };
 
-selfies_mod.startLoad = (fxn1, fxn2) => {
+selfiesMod.startLoad = (fxn1, fxn2) => {
+    if(selfiesMod.pyodideLoaded !== 'waiting')
+        return
+    selfiesMod.pyodideLoaded = 'loading'
+    selfiesMod.selfiesLoaded = 'loading'
     const promise = loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/" });
     return promise.then((pyodide) => {
-        selfies_mod.pyoded_loaded = 'loaded';
+        selfiesMod.pyodideLoaded = 'loaded';
         fxn1('loaded')
         pyodide.loadPackage('micropip').then(() => {
             pyodide.runPythonAsync(`
@@ -12,21 +16,21 @@ selfies_mod.startLoad = (fxn1, fxn2) => {
             await micropip.install('selfies')
             from selfies import decoder
         `, (err) => {
-            selfies_mod.pyoded_loaded = 'failed';
+            selfiesMod.pyodideLoaded = 'failed';
             fxn1('failed')
-            selfies_mod.selfies_loaded = 'failed';
+            selfiesMod.selfiesLoaded = 'failed';
         }).then(() => {
-                selfies_mod.selfies_loaded = 'loaded'
+                selfiesMod.selfiesLoaded = 'loaded'
                 fxn2('loaded')
                 const decoder = pyodide.globals.get('decoder');
-                selfies_mod.selfies2smiles = (selfies) => {
+                selfiesMod.selfies2smiles = (selfies) => {
                     //let result = pyodide.runPython(`decoder(r'${selfies}')`);
                     let result = decoder(selfies);
                     return result;
                 };
             });
         }, (err) => {
-            selfies_mod.selfies_loaded = 'failed';
+            selfiesMod.selfiesLoaded = 'failed';
             fxn2('loaded')
         })
 
@@ -34,4 +38,4 @@ selfies_mod.startLoad = (fxn1, fxn2) => {
 }
 
 
-export default selfies_mod;
+export default selfiesMod;

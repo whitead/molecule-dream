@@ -29,9 +29,14 @@ const rnn_mod = {
 rnn_mod.resetStates = () => {
 }
 
+
+// remove nop and
+// multiply by 2 to sharpen a little
+const noopFilter = tf.mul(tf.scalar(2.0), tf.concat([tf.zeros([1]), tf.ones([config.vocab_size - 1])]));
+
 rnn_mod.sample = (x, seed, k = 1) => {
     return tf.multinomial(
-        tf.mul(x, tf.scalar(10.)), k, seed
+        tf.mul(x, noopFilter), k, seed
     );
     // return tf.argMax(x, -1);
 }
