@@ -12,9 +12,7 @@ importScripts('https://cdn.jsdelivr.net/pyodide/v0.18.0a1/full/pyodide.js')
 
 loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/" }).then((pyodide) => {
     selfiesMod.pyodideLoaded = 'loaded';
-    console.log('SELFIE WORKER: PY LOADED')
     pyodide.loadPackage('micropip').then(() => {
-        console.log('SELFIE WORKER: MICRO LOADED')
         pyodide.runPythonAsync(`
             import micropip
             await micropip.install('selfies')
@@ -23,7 +21,6 @@ loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/" }).then((py
             selfiesMod.pyodideLoaded = 'failed';
             selfiesMod.selfiesLoaded = 'failed';
         }).then(() => {
-            console.log('SELFIE WORKER: SELFIES LOADED')
             selfiesMod.selfiesLoaded = 'loaded'
             const decoder = pyodide.globals.get('decoder');
             selfiesMod.selfies2smiles = (selfies) => {

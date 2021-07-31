@@ -30,6 +30,9 @@ export const selfiesLoadStatus = () => {
 }
 
 export const selfies2smiles = (s) => {
+    if (selfieWorker === null) {
+        return new Promise(resolve => resolve(''));
+    }
     id = (id + 1) % MAX_ID;
     selfieWorker.postMessage(['s2s', id, s]);
     return new Promise(resolve => resolvers[id] = resolve);

@@ -1,5 +1,5 @@
 
-import { Card, CardContent, CssBaseline, ThemeProvider, Container, Grid, Button, TextField, Typography } from '@material-ui/core'
+import { IconButton, Card, CardContent, CssBaseline, ThemeProvider, Container, Grid, Button, TextField, Typography } from '@material-ui/core'
 import List from '@material-ui/core/List';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -31,16 +31,37 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontSize: 18,
   },
+  formContainer: {
+    display: 'flex'
+  },
+  textField: {
+    width: '88%'
+  },
+  linearPRoot: {
+    height: '1.5rem',
+    marginTop: '0.25rem',
+  },
+  iconButton: {
+    border: '#606060 1px solid',
+    '&:hover': {
+      borderColor: 'white'
+    },
+    borderRadius: '4px',
+    height: '56px',
+    width: '56px'
+  }
 }));
 
 const renderLoadStatus = (s) => {
   if (s === 'loaded')
     return <Typography color="textSecondary">Done</Typography>
-  else if (s === 'loading')
-    return <CircularProgress color="secondary" />
+  else if (s === 'waiting')
+    return <CircularProgress value={100} variant="determinate" color="inherit" />
   else if (s === 'failed')
     return <Typography color="error">Failed</Typography>
-  return <CircularProgress value={100} variant="determinate" color="inherit" />
+  // loading...
+  return <CircularProgress color="secondary" />
+
 }
 
 function updateSmiles(s, canvas_id, drawer, palette = 'light') {
@@ -55,7 +76,6 @@ const smilesDrawer = new SmilesDrawer.Drawer(options);
 
 export default function App(props) {
   const classes = useStyles();
-
 
   const [titles, setTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
   const [selfiesTitles, setSelfiesTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
@@ -82,7 +102,37 @@ export default function App(props) {
     );
   });
 
+  const translateKey = (k) => {
+    let t = rnnMod.model(rnnX);
+    setRnnX(rnnMod.sample(t, k.keyCode));
+    rnnMod.vec2selfie(rnnX).then((v) => {
+      setSelfies(selfies + v.join(''));
+      // not sure how to put these functions into useEffect, so do it here
+    });
+  }
+
+  const sampleWholeMol = () => {
+    const l = Math.floor(Math.random() * 100);
+    const s = ['[nop]'];
+    let x = rnn.selfie2vec('[nop]');
+    let t = rnnMod.model(x);
+    let ps = []
+
+    for (let i = 0; i < l; i++) {
+      x = rnnMod.sample(t);
+      ps.push(rnnMod.vec2selfie(x));
+      t = rnnMod.model(x);
+    }
+    return Promise.all(ps).then((result) => {
+      return result.join('');
+    })
+  }
+
   const finalizeCard = () => {
+    // check for empty
+    if (selfies.length === 0) {
+      return;
+    }
     // change palette for final
     updateSmiles(smiles, cardArray[titles.length - 1].props.canvas_id, smilesDrawer, 'dark');
     // add space so it evals to true
@@ -95,18 +145,13 @@ export default function App(props) {
     setRnnX(rnn.selfie2vec('[nop]'))
   }
 
-  const translateKey = (k) => {
-    let t = rnnMod.model(rnnX);
-    setRnnX(rnnMod.sample(t, k.keyCode));
-    rnnMod.vec2selfie(rnnX).then((v) => {
-      setSelfies(selfies + v.join(''));
-      selfies2smiles(selfies).then((s) => {
-        setSmiles(s)
-        updateSmiles(smiles, cardArray[titles.length - 1].props.canvas_id, smilesDrawer);
-      });
-      // not sure how to put these functions into useEffect, so do it here
+  useEffect(() => {
+    selfies2smiles(selfies).then((s) => {
+      setSmiles(s)
+      updateSmiles(s, cardArray[titles.length - 1].props.canvas_id, smilesDrawer);
     });
-  }
+  }, [selfies]);
+
 
   useEffect(() => {
     if (rnnLoaded === 'waiting')
@@ -121,7 +166,17 @@ export default function App(props) {
         setSelfiesLoaded(s.selfies);
       })
     }
-  });
+    // just keep checking with timeout
+    if (selfiesLoaded === 'loading') {
+      selfiesLoadStatus().then((s) => {
+        setPyodideLoaded(s.pyodide);
+        setSelfiesLoaded(s.selfies);
+        if (s.selfies === 'loading') {
+          setTimeout(() => setPyodideLoaded('loading...'), 500);
+        }
+      })
+    }
+  }, [rnnLoaded, pyodideLoaded, selfiesLoaded, smilesLoaded]);
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -133,8 +188,9 @@ export default function App(props) {
         <Typography align="left" variant="body1" component="p" gutterBottom>
           Smash 🔨 the keyboard ⌨️ as fast as you can to dream up new molecules
         </Typography>
-        <TextField variant='outlined' disabled={!(rnnLoaded && selfiesLoaded && pyodideLoaded && smilesLoaded)} fullWidth value={selfies}
+        <TextField variant='outlined' disabled={!(rnnLoaded && selfiesLoaded && pyodideLoaded && smilesLoaded)} value={selfies}
           //onChange={(e) => setSmiles(e.target.value)}
+          className={classes.textField}
           onKeyDown={(e) => {
             if (e.key === 'Enter')
               finalizeCard();
@@ -144,11 +200,15 @@ export default function App(props) {
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <Button color="secondary" onClick={finalizeCard}>✍️</Button>
+                <IconButton aria-label="finalize molecule" color="secondary" onClick={finalizeCard}>✍️</IconButton>
               </InputAdornment>
             )
           }} />
-        <LinearProgress variant="determinate" value={titles.length * 5} />
+        <IconButton className={classes.iconButton} color="secondary" edge='end' aria-label="generate random molecule"
+          onClick={() => sampleWholeMol().then((s) => setSelfies(s))}
+        >🤛</IconButton>
+        <LinearProgress className={classes.linearPRoot} color="secondary"
+          variant="determinate" value={titles.length * 5} />
       </Container>
       <div className={classes.root}>
         <br />
