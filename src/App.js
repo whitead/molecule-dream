@@ -13,7 +13,7 @@ import SmilesDrawer from 'smiles-drawer';
 import MolCard from './components/MolCard';
 import rnn from './lib/rnn';
 import rnnMod from './lib/rnn';
-import selfiesMod from './lib/selfies';
+import { startSelfiesWorker, selfiesLoadStatus, selfies2smiles } from './lib/selfies';
 
 const darkTheme = createTheme({
   palette: {
@@ -61,14 +61,14 @@ export default function App(props) {
   const [selfiesTitles, setSelfiesTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
   const [smiles, setSmiles] = useState('');
   const [rnnX, setRnnX] = useState(rnn.selfie2vec('[nop]'));
-  const [selfies, setSelfies] = useState('[nop]');
+  const [selfies, setSelfies] = useState('');
   const [rnnLoaded, setRnnLoaded] = useState('waiting');
   const [selfiesLoaded, setSelfiesLoaded] = useState('waiting');
   const [pyodideLoaded, setPyodideLoaded] = useState('waiting');
   const [smilesLoaded, setSmilesLoaded] = useState('loaded');
 
 
-  //TODO put these in useffect so they are not called each render.
+  //TODO put these in useffect so they are not called each render.?
   let cardArray = titles.map((e, i) => {
     return (<MolCard fixedTitle={e}
       selfies={selfiesTitles[i]} title={i === titles.length - 1 ? smiles : ''}
@@ -88,9 +88,9 @@ export default function App(props) {
     // add space so it evals to true
     setTitles([...titles.slice(0, -1), smiles + ' ', ''])
     // slice to remove noop
-    setSelfiesTitles([...selfiesTitles.slice(0, -1), selfies.slice(5), ''])
+    setSelfiesTitles([...selfiesTitles.slice(0, -1), selfies, ''])
     setSmiles('');
-    setSelfies('[nop]');
+    setSelfies('');
     rnn.resetStates();
     setRnnX(rnn.selfie2vec('[nop]'))
   }
@@ -100,10 +100,11 @@ export default function App(props) {
     setRnnX(rnnMod.sample(t, k.keyCode));
     rnnMod.vec2selfie(rnnX).then((v) => {
       setSelfies(selfies + v.join(''));
-      const s = selfiesMod.selfies2smiles(selfies);
-      setSmiles(s);
+      selfies2smiles(selfies).then((s) => {
+        setSmiles(s)
+        updateSmiles(smiles, cardArray[titles.length - 1].props.canvas_id, smilesDrawer);
+      });
       // not sure how to put these functions into useEffect, so do it here
-      updateSmiles(smiles, cardArray[titles.length - 1].props.canvas_id, smilesDrawer);
     });
   }
 
@@ -113,29 +114,12 @@ export default function App(props) {
     if (rnnLoaded === 'loaded') {
       if (pyodideLoaded === 'waiting') {
         // pass any function which will trigger re-render
-        selfiesMod.startLoad(
-          (x) => setPyodideLoaded(x),
-          (x) => setSelfiesLoaded(x)
-        );
-        setPyodideLoaded('loading')
-        setSelfiesLoaded('loading')
-
-        // do not know how else to deal with
-        // uncaught promise error in pyodide
-        setTimeout(() => {
-          if (selfiesMod.pyodideLoaded === 'loading') {
-            setPyodideLoaded('failed');
-            setSelfiesLoaded('failed');
-
-            selfiesMod.pyodideLoaded = 'failed';
-            selfiesMod.selfiesLoaded = 'failed';
-          }
-        }, 10000);
+        startSelfiesWorker()
       }
-      else {
-        setPyodideLoaded(selfiesMod.pyodideLoaded);
-        setSelfiesLoaded(selfiesMod.selfiesLoaded);
-      }
+      selfiesLoadStatus().then((s) => {
+        setPyodideLoaded(s.pyodide);
+        setSelfiesLoaded(s.selfies);
+      })
     }
   });
 
@@ -149,7 +133,7 @@ export default function App(props) {
         <Typography align="left" variant="body1" component="p" gutterBottom>
           Smash 🔨 the keyboard ⌨️ as fast as you can to dream up new molecules
         </Typography>
-        <TextField variant='outlined' disabled={!(rnnLoaded && selfiesLoaded && pyodideLoaded && smilesLoaded)} fullWidth value={smiles}
+        <TextField variant='outlined' disabled={!(rnnLoaded && selfiesLoaded && pyodideLoaded && smilesLoaded)} fullWidth value={selfies}
           //onChange={(e) => setSmiles(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter')
