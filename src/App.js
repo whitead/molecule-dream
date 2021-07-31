@@ -34,23 +34,23 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const renderLoadStatus = (s) => {
-  if(s === 'loaded')
+  if (s === 'loaded')
     return <Typography color="textSecondary">Done</Typography>
-  else if(s === 'loading')
-    return <CircularProgress  color="secondary" />
-  else if(s === 'failed')
+  else if (s === 'loading')
+    return <CircularProgress color="secondary" />
+  else if (s === 'failed')
     return <Typography color="error">Failed</Typography>
-  return <CircularProgress  value={100} variant="determinate" color="inherit" />
+  return <CircularProgress value={100} variant="determinate" color="inherit" />
 }
 
-function updateSmiles(s, canvas_id, drawer) {
+function updateSmiles(s, canvas_id, drawer, palette = 'light') {
   SmilesDrawer.parse(s, (tree) => {
-    drawer.draw(tree, canvas_id);
+    drawer.draw(tree, canvas_id, palette);
   }, (err) => {
   });
 }
 
-const options = { theme: 'dark', width: '250', height: '200' };
+const options = { width: '250', height: '200' };
 const smilesDrawer = new SmilesDrawer.Drawer(options);
 
 export default function App(props) {
@@ -83,6 +83,8 @@ export default function App(props) {
   });
 
   const finalizeCard = () => {
+    // change palette for final
+    updateSmiles(smiles, cardArray[titles.length - 1].props.canvas_id, smilesDrawer, 'dark');
     // add space so it evals to true
     setTitles([...titles.slice(0, -1), smiles + ' ', ''])
     // slice to remove noop
@@ -106,10 +108,10 @@ export default function App(props) {
   }
 
   useEffect(() => {
-    if(rnnLoaded === 'waiting')
+    if (rnnLoaded === 'waiting')
       setRnnLoaded(rnn.startLoad((x) => setRnnLoaded(x)));
-    if(rnnLoaded === 'loaded'){
-      if(pyodideLoaded === 'waiting') {
+    if (rnnLoaded === 'loaded') {
+      if (pyodideLoaded === 'waiting') {
         // pass any function which will trigger re-render
         selfiesMod.startLoad(
           (x) => setPyodideLoaded(x),
@@ -121,7 +123,7 @@ export default function App(props) {
         // do not know how else to deal with
         // uncaught promise error in pyodide
         setTimeout(() => {
-          if(selfiesMod.pyodideLoaded === 'loading') {
+          if (selfiesMod.pyodideLoaded === 'loading') {
             setPyodideLoaded('failed');
             setSelfiesLoaded('failed');
 
@@ -162,7 +164,7 @@ export default function App(props) {
               </InputAdornment>
             )
           }} />
-          <LinearProgress variant="determinate" value={titles.length * 5} />
+        <LinearProgress variant="determinate" value={titles.length * 5} />
       </Container>
       <div className={classes.root}>
         <br />
@@ -186,7 +188,7 @@ export default function App(props) {
             <Card variant="elevation">
               <CardContent>
                 <List>
-                <ListItem>
+                  <ListItem>
                     <ListItemText primary="SMILES Drawer" />
                     {renderLoadStatus(smilesLoaded)}
                   </ListItem>
