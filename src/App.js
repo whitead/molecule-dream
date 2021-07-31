@@ -1,5 +1,5 @@
 
-import { IconButton, Box, Card, CardContent, CssBaseline, ThemeProvider, Container, Grid, Button, TextField, Typography, ButtonGroup } from '@material-ui/core'
+import { IconButton, Slide, Card, CardContent, CssBaseline, ThemeProvider, Container, Grid, Button, TextField, Typography, ButtonGroup } from '@material-ui/core'
 import List from '@material-ui/core/List';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -112,6 +112,12 @@ export default function App(props) {
     });
   }
 
+  const ready = () => {
+    return rnnLoaded === 'loaded' &&
+      selfiesLoaded === 'loaded' &&
+      pyodideLoaded === 'loaded' &&
+      smilesLoaded === 'loaded'
+  }
 
 
   //TODO put these in useffect so they are not called each render.?
@@ -216,7 +222,7 @@ export default function App(props) {
           Smash 🔨 the keyboard ⌨️ as fast as you can to dream up new molecules
         </Typography>
         <div className={classes.flexCont}>
-          <TextField variant='outlined' disabled={!(rnnLoaded && selfiesLoaded && pyodideLoaded && smilesLoaded)} value={selfies}
+          <TextField variant='outlined' disabled={!ready()} value={selfies}
             //onChange={(e) => setSmiles(e.target.value)}
             className={classes.textField}
             onKeyDown={(e) => {
@@ -245,6 +251,32 @@ export default function App(props) {
       <div className={classes.root}>
         <br />
         <Grid container spacing={3}>
+          <Slide direction="up" in={!ready()} unmountOnExit>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <Card variant="elevation">
+                <CardContent>
+                  <List>
+                    <ListItem>
+                      <ListItemText primary="SMILES Drawer" />
+                      {renderLoadStatus(smilesLoaded)}
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary="RNN Model" />
+                      {renderLoadStatus(rnnLoaded)}
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary="Pyodide" />
+                      {renderLoadStatus(pyodideLoaded)}
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary="Selfies" />
+                      {renderLoadStatus(selfiesLoaded)}
+                    </ListItem>
+                  </List>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Slide>
           {gCardArray.reverse()}
           <Grid item xs={12} sm={6} md={4} lg={3}>
             <Card variant="elevation">
@@ -257,30 +289,6 @@ export default function App(props) {
                   memory errors occurring in your tab if you run this. This is because garbage collection
                   isn't being triggered correctly. Just close and re-open the tab when this happens.
                 </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Card variant="elevation">
-              <CardContent>
-                <List>
-                  <ListItem>
-                    <ListItemText primary="SMILES Drawer" />
-                    {renderLoadStatus(smilesLoaded)}
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="RNN Model" />
-                    {renderLoadStatus(rnnLoaded)}
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="Pyodide" />
-                    {renderLoadStatus(pyodideLoaded)}
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="Selfies" />
-                    {renderLoadStatus(selfiesLoaded)}
-                  </ListItem>
-                </List>
               </CardContent>
             </Card>
           </Grid>
