@@ -20,6 +20,10 @@ const useStyles = makeStyles((theme) => ({
     },
     code: {
         fontFamily: 'monospace'
+    },
+    flexCont: {
+        display: 'flex',
+        justifyContent: 'center'
     }
 }));
 
@@ -41,7 +45,10 @@ export default function MolCard(props) {
                         </IconButton>
                     }
                 </Typography>
-                <canvas id={props.canvas_id} width='250' height='200'></canvas>
+                <div className={classes.flexCont}>
+                    <canvas id={props.canvas_id} width={props.canvas.width} height={props.canvas.height}></canvas>
+
+                </div>
                 {props.selfies &&
                     <React.Fragment>
                         <Typography className={classes.title}>

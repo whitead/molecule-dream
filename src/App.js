@@ -1,5 +1,5 @@
 
-import { IconButton, Card, CardContent, CssBaseline, ThemeProvider, Container, Grid, Button, TextField, Typography } from '@material-ui/core'
+import { IconButton, Box, Card, CardContent, CssBaseline, ThemeProvider, Container, Grid, Button, TextField, Typography, ButtonGroup } from '@material-ui/core'
 import List from '@material-ui/core/List';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -9,16 +9,26 @@ import ListItemText from '@material-ui/core/ListItemText';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import React, { useState, useEffect } from 'react';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import SmilesDrawer from 'smiles-drawer';
 import MolCard from './components/MolCard';
 import rnn from './lib/rnn';
 import rnnMod from './lib/rnn';
 import { startSelfiesWorker, selfiesLoadStatus, selfies2smiles } from './lib/selfies';
 
-const darkTheme = createTheme({
+const theme = createTheme({
   palette: {
     type: 'dark',
   },
+  overrides: {
+    MuiGrid: {
+      'spacing-xs-3': {
+        color: 'purple',
+        width: 'unset',
+        margin: 'unset'
+      },
+    }
+  }
 });
 
 const useStyles = makeStyles((theme) => ({
@@ -26,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   item: {
-    margin: theme.spacing(2)
+    // margin: '12px'
   },
   title: {
     fontSize: 18,
@@ -35,7 +45,14 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex'
   },
   textField: {
-    width: '88%'
+    // making pixel perfect
+    [theme.breakpoints.down('xs')]: {
+      width: '250px',
+    },
+    width: '439px',
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '0px'
+    }
   },
   linearPRoot: {
     height: '1.5rem',
@@ -46,9 +63,17 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       borderColor: 'white'
     },
-    borderRadius: '4px',
+    borderRadius: '0px',
     height: '56px',
-    width: '56px'
+    width: '56px',
+    marginRight: '1px'
+  },
+  inputForm: {
+    margin: 'auto'
+  },
+  flexCont: {
+    display: 'flex',
+    justifyContent: 'center'
   }
 }));
 
@@ -61,21 +86,11 @@ const renderLoadStatus = (s) => {
     return <Typography color="error">Failed</Typography>
   // loading...
   return <CircularProgress color="secondary" />
-
 }
-
-function updateSmiles(s, canvas_id, drawer, palette = 'light') {
-  SmilesDrawer.parse(s, (tree) => {
-    drawer.draw(tree, canvas_id, palette);
-  }, (err) => {
-  });
-}
-
-const options = { width: '250', height: '200' };
-const smilesDrawer = new SmilesDrawer.Drawer(options);
 
 export default function App(props) {
   const classes = useStyles();
+  const mdQuery = useMediaQuery(theme.breakpoints.up('md'));
 
   const [titles, setTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
   const [selfiesTitles, setSelfiesTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
@@ -86,17 +101,29 @@ export default function App(props) {
   const [selfiesLoaded, setSelfiesLoaded] = useState('waiting');
   const [pyodideLoaded, setPyodideLoaded] = useState('waiting');
   const [smilesLoaded, setSmilesLoaded] = useState('loaded');
+  const options = { width: mdQuery ? '400' : '250', height: mdQuery ? '300' : '200' };
+  const smilesDrawer = new SmilesDrawer.Drawer(options);
+
+
+  const updateSmiles = (s, canvas_id, drawer, palette = 'light') => {
+    SmilesDrawer.parse(s, (tree) => {
+      drawer.draw(tree, canvas_id, palette);
+    }, (err) => {
+    });
+  }
+
 
 
   //TODO put these in useffect so they are not called each render.?
   let cardArray = titles.map((e, i) => {
     return (<MolCard fixedTitle={e}
+      canvas={options}
       selfies={selfiesTitles[i]} title={i === titles.length - 1 ? smiles : ''}
       canvas_id={`test_${i}`} ></MolCard >);
   });
   let gCardArray = cardArray.map((c, i) => {
     return (
-      <Grid className={classes.item} key={i} item xs={2}>
+      <Grid key={i} item xs={12} sm={6} md={4} lg={3}>
         {c}
       </Grid>
     );
@@ -179,7 +206,7 @@ export default function App(props) {
   }, [rnnLoaded, pyodideLoaded, selfiesLoaded, smilesLoaded]);
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="sm">
         <Typography align="center" variant="h2" component="h2" gutterBottom>
@@ -188,33 +215,38 @@ export default function App(props) {
         <Typography align="left" variant="body1" component="p" gutterBottom>
           Smash 🔨 the keyboard ⌨️ as fast as you can to dream up new molecules
         </Typography>
-        <TextField variant='outlined' disabled={!(rnnLoaded && selfiesLoaded && pyodideLoaded && smilesLoaded)} value={selfies}
-          //onChange={(e) => setSmiles(e.target.value)}
-          className={classes.textField}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter')
-              finalizeCard();
-            else
-              translateKey(e)
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton aria-label="finalize molecule" color="secondary" onClick={finalizeCard}>✍️</IconButton>
-              </InputAdornment>
-            )
-          }} />
-        <IconButton className={classes.iconButton} color="secondary" edge='end' aria-label="generate random molecule"
-          onClick={() => sampleWholeMol().then((s) => setSelfies(s))}
-        >🤛</IconButton>
-        <LinearProgress className={classes.linearPRoot} color="secondary"
-          variant="determinate" value={titles.length * 5} />
+        <div className={classes.flexCont}>
+          <TextField variant='outlined' disabled={!(rnnLoaded && selfiesLoaded && pyodideLoaded && smilesLoaded)} value={selfies}
+            //onChange={(e) => setSmiles(e.target.value)}
+            className={classes.textField}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter')
+                finalizeCard();
+              else
+                translateKey(e)
+            }} />
+          <ButtonGroup>
+            <IconButton aria-label="finalize molecule" className={classes.iconButton} color="secondary" onClick={finalizeCard}>✍️</IconButton>
+            <IconButton className={classes.iconButton} color="secondary" aria-label="generate random molecule"
+              onClick={() => sampleWholeMol().then((s) => setSelfies(s))}
+            >🤛</IconButton>
+          </ButtonGroup>
+        </div>
+        <div>
+          <LinearProgress
+            className={classes.linearPRoot}
+            color="secondary"
+            variant="determinate"
+            value={titles.length * 5}
+          />
+        </div>
+
       </Container>
       <div className={classes.root}>
         <br />
         <Grid container spacing={3}>
           {gCardArray.reverse()}
-          <Grid className={classes.item} item xs={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Card variant="elevation">
               <CardContent>
                 <Typography color="textSecondary" className={classes.title} gutterBottom>
@@ -228,7 +260,7 @@ export default function App(props) {
               </CardContent>
             </Card>
           </Grid>
-          <Grid className={classes.item} item xs={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Card variant="elevation">
               <CardContent>
                 <List>
@@ -254,6 +286,6 @@ export default function App(props) {
           </Grid>
         </Grid>
       </div >
-    </ThemeProvider>
+    </ThemeProvider >
   );
 }
