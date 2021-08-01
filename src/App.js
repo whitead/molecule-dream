@@ -95,7 +95,7 @@ export default function App(props) {
   const [titles, setTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
   const [selfiesTitles, setSelfiesTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
   const [smiles, setSmiles] = useState('');
-  const [rnnX, setRnnX] = useState(rnn.initVec('[nop]'));
+  const [rnnX, setRnnX] = useState(rnn.initVec());
   const [selfies, setSelfies] = useState('');
   const [rnnLoaded, setRnnLoaded] = useState('waiting');
   const [selfiesLoaded, setSelfiesLoaded] = useState('waiting');
@@ -137,8 +137,9 @@ export default function App(props) {
 
   const translateKey = (k) => {
     let t = rnnMod.model(rnnX);
-    setRnnX(rnnMod.sample(t, k.keyCode));
-    rnnMod.vec2selfie(rnnX).then((v) => {
+    let xp = rnnMod.sample(t, k.keyCode)
+    setRnnX(xp);
+    rnnMod.vec2selfie(xp).then((v) => {
       setSelfies(selfies + v.join(''));
       // not sure how to put these functions into useEffect, so do it here
     });
@@ -146,8 +147,8 @@ export default function App(props) {
 
   const sampleWholeMol = () => {
     const l = Math.floor(Math.random() * 100);
-    const s = ['[nop]'];
-    let x = rnn.selfie2vec('[nop]');
+    const s = [''];
+    let x = rnn.initVec();
     let t = rnnMod.model(x);
     let ps = []
 

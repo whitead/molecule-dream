@@ -30,12 +30,9 @@ rnn_mod.resetStates = () => {
 }
 
 
-// remove nop
-const noopFilter = tf.mul(tf.scalar(1.0), tf.concat([tf.zeros([1]), tf.ones([config.vocab_size - 1])]));
-
-rnn_mod.sample = (x, seed, T = 0.5, k = 1) => {
+rnn_mod.sample = (x, seed, T = 0.1, k = 1) => {
     return tf.multinomial(
-        tf.mul(tf.scalar(1 / T), tf.mul(x, noopFilter)), k, seed
+        tf.mul(tf.scalar(1. / (T + 0.000000001)), x), k, seed
     );
     // return tf.argMax(x, -1);
 }

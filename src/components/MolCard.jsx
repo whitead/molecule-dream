@@ -73,10 +73,10 @@ export default function MolCard(props) {
                                 href={`http://zinc15.docking.org/substances/?ecfp4_fp-tanimoto-0.1=${props.fixedTitle ? encodeURIComponent(props.fixedTitle) : encodeURIComponent(props.title)}`}>
                                 Similar Real Molecules
                             </Button>
-                            <Button variant='contained' color="primary"
+                            <Button variant='contained' color="secondary"
                                 target="_blank"
                                 href={`https://postera.ai/manifold?smiles=${props.fixedTitle ? encodeURIComponent(props.fixedTitle) : encodeURIComponent(props.title)}`}>
-                                Synthesizr
+                                Synthesize It
                             </Button>
                         </ButtonGroup>
                     </CardActions>
