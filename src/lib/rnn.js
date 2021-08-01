@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
-import config from './model_info.json'
+import config from './model_info.json';
 
 const rnn_mod = {
     model: (t) => {
@@ -7,7 +7,7 @@ const rnn_mod = {
         return tf.randomNormal([config.vocab_size]);
     },
     startLoad: (fxn) => {
-        const loader = tf.loadLayersModel('https://raw.githubusercontent.com/whitead/molecule-dream/main/model/model.json');
+        const loader = tf.loadLayersModel('/model/model.json');
         loader.then((model) => {
             rnn_mod.model = (t) => {
                 return model.predict(t);
@@ -30,13 +30,12 @@ rnn_mod.resetStates = () => {
 }
 
 
-// remove nop and
-// multiply by 2 to sharpen a little
-const noopFilter = tf.mul(tf.scalar(2.0), tf.concat([tf.zeros([1]), tf.ones([config.vocab_size - 1])]));
+// remove nop
+const noopFilter = tf.mul(tf.scalar(1.0), tf.concat([tf.zeros([1]), tf.ones([config.vocab_size - 1])]));
 
-rnn_mod.sample = (x, seed, k = 1) => {
+rnn_mod.sample = (x, seed, T = 0.5, k = 1) => {
     return tf.multinomial(
-        tf.mul(x, noopFilter), k, seed
+        tf.mul(tf.scalar(1 / T), tf.mul(x, noopFilter)), k, seed
     );
     // return tf.argMax(x, -1);
 }
@@ -47,6 +46,10 @@ rnn_mod.selfie2vec = (s) => {
             parseInt(config.stoi['[' + e]);
     }));
     return vec;
+}
+
+rnn_mod.initVec = () => {
+    return tf.tensor([0]);
 }
 
 rnn_mod.vec2selfie = (v) => {

@@ -33,6 +33,7 @@
     "less": "^4.1.1",
     "mocha": "^9.0.3",
     "parcel-bundler": "^1.12.5",
+    "parcel-plugin-static-files-copy": "^2.6.0",
     "regenerator-runtime": "^0.13.9"
   }
 }

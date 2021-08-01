@@ -1,4 +1,4 @@
-import { Card, IconButton, CardActions, Button, CardContent, Typography, Divider } from '@material-ui/core'
+import { ButtonGroup, Card, IconButton, CardActions, Button, CardContent, Typography, Divider } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import React, { useState } from 'react';
@@ -67,11 +67,18 @@ export default function MolCard(props) {
                 }
                 {(props.title || props.fixedTitle) &&
                     <CardActions>
-                        <Button variant='contained' color="primary"
-                            target="_blank"
-                            href={`http://zinc15.docking.org/substances/?ecfp4_fp-tanimoto-0.1=${props.fixedTitle ? encodeURIComponent(props.fixedTitle) : encodeURIComponent(props.title)}`}>
-                            Similar Real Molecules
-                        </Button>
+                        <ButtonGroup>
+                            <Button variant='contained' color="primary"
+                                target="_blank"
+                                href={`http://zinc15.docking.org/substances/?ecfp4_fp-tanimoto-0.1=${props.fixedTitle ? encodeURIComponent(props.fixedTitle) : encodeURIComponent(props.title)}`}>
+                                Similar Real Molecules
+                            </Button>
+                            <Button variant='contained' color="primary"
+                                target="_blank"
+                                href={`https://postera.ai/manifold?smiles=${props.fixedTitle ? encodeURIComponent(props.fixedTitle) : encodeURIComponent(props.title)}`}>
+                                Synthesizr
+                            </Button>
+                        </ButtonGroup>
                     </CardActions>
                 }
             </CardContent>

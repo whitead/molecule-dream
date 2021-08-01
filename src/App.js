@@ -95,7 +95,7 @@ export default function App(props) {
   const [titles, setTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
   const [selfiesTitles, setSelfiesTitles] = useState(Array.from({ length: 1 }, (e, i) => ''))
   const [smiles, setSmiles] = useState('');
-  const [rnnX, setRnnX] = useState(rnn.selfie2vec('[nop]'));
+  const [rnnX, setRnnX] = useState(rnn.initVec('[nop]'));
   const [selfies, setSelfies] = useState('');
   const [rnnLoaded, setRnnLoaded] = useState('waiting');
   const [selfiesLoaded, setSelfiesLoaded] = useState('waiting');
@@ -175,7 +175,7 @@ export default function App(props) {
     setSmiles('');
     setSelfies('');
     rnn.resetStates();
-    setRnnX(rnn.selfie2vec('[nop]'))
+    setRnnX(rnn.initVec());
   }
 
   useEffect(() => {
