@@ -3,7 +3,7 @@ import config from './model_info.json';
 
 const rnn_mod = {
     startLoad: (fxn) => {
-        const loader = tf.loadLayersModel('/model/model.json');
+        const loader = tf.loadLayersModel('https://raw.githubusercontent.com/whitead/molecule-dream/main/static/model/model.json');
         loader.then((model) => {
             rnn_mod.model = (t) => {
                 return model.predict(t);
