@@ -2,10 +2,6 @@ import * as tf from '@tensorflow/tfjs';
 import config from './model_info.json';
 
 const rnn_mod = {
-    model: (t) => {
-        console.log('FAKE!!');
-        return tf.randomNormal([config.vocab_size]);
-    },
     startLoad: (fxn) => {
         const loader = tf.loadLayersModel('/model/model.json');
         loader.then((model) => {
@@ -27,14 +23,14 @@ const rnn_mod = {
 
 
 rnn_mod.resetStates = () => {
+    // placeholder, overwritten on load
 }
 
 
-rnn_mod.sample = (x, seed, T = 0.1, k = 1) => {
+rnn_mod.sample = (x, seed, T = 0.5, k = 1) => {
     return tf.multinomial(
-        tf.mul(tf.scalar(1. / (T + 0.000000001)), x), k, seed
+        tf.mul(tf.scalar(1 / (T + 0.00001)), x), k, seed
     );
-    // return tf.argMax(x, -1);
 }
 
 rnn_mod.selfie2vec = (s) => {

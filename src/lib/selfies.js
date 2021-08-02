@@ -1,7 +1,7 @@
 let selfieWorker = null;
 const resolvers = {};
 let id = 0;
-const MAX_ID = 2 ** 16
+const MAX_ID = 2 ** 10
 
 export const startSelfiesWorker = () => {
     if (selfieWorker !== null)

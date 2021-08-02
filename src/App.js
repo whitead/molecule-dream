@@ -19,11 +19,16 @@ import { startSelfiesWorker, selfiesLoadStatus, selfies2smiles } from './lib/sel
 const theme = createTheme({
   palette: {
     type: 'dark',
+    secondary: {
+      main: '#d34a3c'
+    },
+    primary: {
+      main: '#6696c2'
+    }
   },
   overrides: {
     MuiGrid: {
       'spacing-xs-3': {
-        color: 'purple',
         width: 'unset',
         margin: 'unset'
       },
@@ -76,6 +81,10 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center'
   }
 }));
+
+const alphaNumeric = (k) => {
+  return k >= 48 && k <= 57 || k >= 65 && k <= 90
+}
 
 const renderLoadStatus = (s) => {
   if (s === 'loaded')
@@ -136,8 +145,10 @@ export default function App(props) {
   });
 
   const translateKey = (k) => {
+    if (!alphaNumeric(k.keyCode))
+      return
     let t = rnnMod.model(rnnX);
-    let xp = rnnMod.sample(t, k.keyCode)
+    const xp = rnnMod.sample(t, k.keyCode)
     setRnnX(xp);
     rnnMod.vec2selfie(xp).then((v) => {
       setSelfies(selfies + v.join(''));
@@ -162,6 +173,8 @@ export default function App(props) {
     })
   }
 
+  //useEffect is too slow -> slows everything down
+
   const finalizeCard = () => {
     // check for empty
     if (selfies.length === 0) {
@@ -185,7 +198,6 @@ export default function App(props) {
       updateSmiles(s, cardArray[titles.length - 1].props.canvas_id, smilesDrawer);
     });
   }, [selfies]);
-
 
   useEffect(() => {
     if (rnnLoaded === 'waiting')
@@ -223,7 +235,8 @@ export default function App(props) {
           Smash 🔨 the keyboard ⌨️ as fast as you can to dream up new molecules
         </Typography>
         <div className={classes.flexCont}>
-          <TextField variant='outlined' disabled={!ready()} value={selfies}
+          <TextField variant='outlined' placeholder={ready() ? '' : 'Loading...'}
+            disabled={!ready()} value={selfies}
             //onChange={(e) => setSmiles(e.target.value)}
             className={classes.textField}
             onKeyDown={(e) => {
