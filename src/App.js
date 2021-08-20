@@ -149,6 +149,8 @@ export default function App(props) {
       return
     let t = rnnMod.model(rnnX);
     const xp = rnnMod.sample(t, k.keyCode)
+    t.dispose();
+    rnnX.dispose();
     setRnnX(xp);
     rnnMod.vec2selfie(xp).then((v) => {
       setSelfies(selfies + v.join(''));
@@ -165,8 +167,10 @@ export default function App(props) {
 
     for (let i = 0; i < l; i++) {
       x = rnnMod.sample(t);
+      t.dispose();
       ps.push(rnnMod.vec2selfie(x));
       t = rnnMod.model(x);
+      x.dispose()
     }
     return Promise.all(ps).then((result) => {
       return result.join('');
@@ -189,6 +193,7 @@ export default function App(props) {
     setSmiles('');
     setSelfies('');
     rnn.resetStates();
+    rnnX.dispose();
     setRnnX(rnn.initVec());
   }
 
