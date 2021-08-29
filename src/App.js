@@ -304,9 +304,8 @@ export default function App(props) {
                   Instructions
                 </Typography>
                 <Typography align="left" variant="body2" component="p" gutterBottom>
-                  Wait 5-30 seconds for things to load. If it fails, try to use a new tab to free memory. This package is very inefficient - you may find your memory usage skyrocketing or even
-                  memory errors occurring in your tab if you run this. This is because garbage collection
-                  isn't being triggered correctly. Just close and re-open the tab when this happens.
+                  Wait 5-30 seconds for things to load. It will be faster next time. If it fails, try to use a new tab to free memory. 
+                  Just go to input box and hit random keys, it'll make the molecules.                   
                 </Typography>
               </CardContent>
             </Card>
