@@ -8,9 +8,9 @@ const selfiesMod = {
 };
 
 console.log('SELFIE WORKER: Started')
-importScripts('https://cdn.jsdelivr.net/pyodide/v0.18.0a1/full/pyodide.js')
+importScripts('https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js')
 
-loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/" }).then((pyodide) => {
+loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.18.1/full/" }).then((pyodide) => {
     selfiesMod.pyodideLoaded = 'loaded';
     pyodide.loadPackage('micropip').then(() => {
         pyodide.runPythonAsync(`
