@@ -15,7 +15,7 @@ loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.18.1/full/" }).then
     pyodide.loadPackage('micropip').then(() => {
         pyodide.runPythonAsync(`
             import micropip
-            await micropip.install('selfies')
+            await micropip.install('selfies==1.0.4')
             from selfies import decoder
         `, (err) => {
             selfiesMod.pyodideLoaded = 'failed';
