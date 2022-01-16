@@ -240,7 +240,7 @@ export default function App(props) {
           Smash 🔨 the keyboard ⌨️ as fast as you can to dream up new molecules
         </Typography>
         <div className={classes.flexCont}>
-          <TextField variant='outlined' placeholder={ready() ? '' : 'Loading...'}
+          <TextField variant='outlined' autofocus placeholder={ready() ? '' : 'Loading...'}
             disabled={!ready()} value={selfies}
             //onChange={(e) => setSmiles(e.target.value)}
             className={classes.textField}
