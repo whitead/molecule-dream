@@ -1,5 +1,5 @@
 # molecule dream
 🤔
 
-[Dream Away](https://whitead.github.io/molecule-dream/)
+[Dream Away](https://mol.one)
 
